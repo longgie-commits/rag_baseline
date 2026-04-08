@@ -8,12 +8,12 @@ from sentence_transformers import SentenceTransformer
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-PDF_PATH = PROJECT_ROOT / "data" / "raw" / "nasa_systems_engineering_handbook.pdf"
+PDF_PATH = PROJECT_ROOT / "data" / "raw" / "数据挖掘原理.pdf"
 INDEX_DIR = PROJECT_ROOT / "index"
 INDEX_PATH = INDEX_DIR / "faiss.index"
 META_PATH = INDEX_DIR / "meta.json"
 
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+MODEL_NAME = "shibing624/text2vec-base-chinese"
 
 
 def read_pdf(pdf_path: Path):
@@ -36,7 +36,7 @@ def read_pdf(pdf_path: Path):
     return pages
 
 
-def chunk_text(text, chunk_size=800, overlap=100):
+def chunk_text(text, chunk_size=400, overlap=50):
     chunks = []
     start = 0
     text_len = len(text)
@@ -63,7 +63,7 @@ def build_chunks(pages):
         page_num = page["page_num"]
         page_text = page["text"]
 
-        chunks = chunk_text(page_text, chunk_size=800, overlap=100)
+        chunks = chunk_text(page_text, chunk_size=400, overlap=50)
 
         for i, chunk in enumerate(chunks):
             records.append({

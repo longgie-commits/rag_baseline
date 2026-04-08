@@ -3,7 +3,7 @@ from pathlib import Path
 
 import faiss
 from sentence_transformers import SentenceTransformer
-from transformers import GPTNeoForCausalLM, GPT2Tokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -11,12 +11,12 @@ INDEX_DIR = PROJECT_ROOT / "index"
 INDEX_PATH = INDEX_DIR / "faiss.index"
 META_PATH = INDEX_DIR / "meta.json"
 
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-GEN_MODEL_NAME = "EleutherAI/gpt-neo-1.3B"  # 你也可以选择 GPT-2
+MODEL_NAME = "shibing624/text2vec-base-chinese"
+GEN_MODEL_NAME = "Qwen/Qwen2.5-1.5B-Instruct"  # 专精中文的轻量级大模型
 
 # 加载生成模型
-gen_model = GPTNeoForCausalLM.from_pretrained(GEN_MODEL_NAME)
-gen_tokenizer = GPT2Tokenizer.from_pretrained(GEN_MODEL_NAME)
+gen_model = AutoModelForCausalLM.from_pretrained(GEN_MODEL_NAME)
+gen_tokenizer = AutoTokenizer.from_pretrained(GEN_MODEL_NAME)
 
 
 def load_index_and_meta():
@@ -62,12 +62,20 @@ def search(query, top_k=5):
 
 
 def generate_answer(query, top_k_texts):
-    # 构建标准的问答 Prompt
+    # 构建标准的问答 Prompt (已汉化)
     context = "\n".join([text["text"] for text in top_k_texts])
-    prompt = f"Based on the following context, answer the question.\n\nContext:\n{context}\n\nQuestion: {query}\n\nAnswer:"
+    prompt = f"请基于以下给出的【背景信息】，简明扼要地回答【问题】。如果背景信息中没有直接答案，请提炼相关内容回答。\n\n【背景信息】:\n{context}\n\n【问题】: {query}"
+    
+    messages = [
+        {"role": "system", "content": "你是一个智能的问答助手。你必须根据提供的背景信息用中文回答用户的问题。"},
+        {"role": "user", "content": prompt}
+    ]
+
+    # 将 messages 转换为 Qwen 专属的 ChatML 模板格式
+    text = gen_tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
     # Tokenize prompt
-    inputs = gen_tokenizer(prompt, return_tensors="pt", max_length=1024, truncation=True)
+    inputs = gen_tokenizer([text], return_tensors="pt", max_length=1024, truncation=True)
     input_length = inputs.input_ids.shape[1]
 
     # Generate response
@@ -97,7 +105,7 @@ def main():
     answer = generate_answer(query, top_k_results)
 
     # 输出生成的答案
-    print("\n=== Generated Answer ===")
+    print("\n=== AI 生成的回答 ===")
     print(answer)
 
 
