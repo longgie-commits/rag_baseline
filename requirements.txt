@@ -3,3 +3,5 @@ sentence-transformers
 faiss-cpu
 numpy
 tqdm
+rank_bm25
+jieba

@@ -1,0 +1,3 @@
+﻿[standard] 平均忠诚度: 26.8% (text_only: 5.0%, cross_segment_reasoning: 1.0%, formula_dependent: 50.5%)
+[mtfc_v1] 平均忠诚度: 1.5% (text_only: 5.0%, cross_segment_reasoning: 1.0%, formula_dependent: 0.0%)
+[mtfc_v2] 平均忠诚度: 50.2% (text_only: 100.0%, cross_segment_reasoning: 1.0%, formula_dependent: 50.0%)
